@@ -3,9 +3,12 @@ import Button from "../Shared/Button/Button";
 import { DateRange } from "react-date-range";
 import { useState } from "react";
 import { differenceInCalendarDays } from "date-fns";
+import BookingModal from "../Dashboard/Components/Modal/BookingModal";
+import useAuth from "../../hooks/useAuth";
 
 const RoomReservation = ({ room }) => {
-  const [isOpen,setIsOpen] = useState(false)
+  const {user} = useAuth()
+  const [isOpen, setIsOpen] = useState(false);
   const [state, setState] = useState([
     {
       startDate: new Date(room.from),
@@ -14,15 +17,15 @@ const RoomReservation = ({ room }) => {
     },
   ]);
 
-  const closeModal =()=>{
-    setIsOpen(false)
-  }
-
+  const closeModal = () => {
+    setIsOpen(false);
+  };
 
   //total days*price
-  const totalPrice = 
-   parseInt(differenceInCalendarDays(new Date(room.to),new Date(room.from))) * room?.price
-   console.log(totalPrice)
+  const totalPrice =
+    parseInt(differenceInCalendarDays(new Date(room.to), new Date(room.from))) *
+    room?.price;
+  console.log(totalPrice);
 
   return (
     <div className="rounded-xl border-[1px] border-neutral-200 overflow-hidden bg-white">
@@ -34,26 +37,31 @@ const RoomReservation = ({ room }) => {
       <div className="flex justify-center">
         {/* Calender */}
         <DateRange
-         showDateDisplay={false}
-         rangeColors={['#F6536D']}
-          onChange={(item) =>{
-            console.log(item) 
+          showDateDisplay={false}
+          rangeColors={["#F6536D"]}
+          onChange={(item) => {
+            console.log(item);
             setState([
-            {
-              startDate: new Date(room.from),
-              endDate: new Date(room.to),
-              key: "selection",
-            },
-          ])
-        }}
+              {
+                startDate: new Date(room.from),
+                endDate: new Date(room.to),
+                key: "selection",
+              },
+            ]);
+          }}
           moveRangeOnFirstSelection={false}
           ranges={state}
         />
       </div>
       <hr />
       <div className="p-4">
-        <Button label={"Reserve"} />
+        <Button onClick={()=>setIsOpen(true)} label={"Reserve"} />
       </div>
+      <BookingModal
+        isOpen={isOpen}
+        closeModal={closeModal}
+        bookingInfo={{ ...room, price: totalPrice ,guest:{name:user?.displayName} }}
+      ></BookingModal>
       <hr />
       <div className="p-4 flex items-center justify-between font-semibold text-lg">
         <div>Total</div>
